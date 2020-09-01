@@ -39,11 +39,11 @@ dist_install_DATA += analog.ttf MyriadPro-Regular.otf MyriadPro-Semibold.otf Myr
 endif
 
 if VUSOLO4K
-dist_install_DATA += analog.ttf MyriadPro-Regular.otf MyriadPro-Semibold.otf MyriadPro-SemiboldIt.otf
+dist_install_DATA += analog.ttf MyriadPro-Regular.otf MyriadPro-Semibold.otf MyriadPro-SemiboldIt.otf verdana.ttf
 endif
 
 if VUULTIMO4K
-dist_install_DATA += analog.ttf MyriadPro-Regular.otf MyriadPro-Semibold.otf MyriadPro-SemiboldIt.otf
+dist_install_DATA += analog.ttf MyriadPro-Regular.otf MyriadPro-Semibold.otf MyriadPro-SemiboldIt.otf verdana.ttf
 endif
 
 if VUUNO4KSE
@@ -60,6 +60,18 @@ endif
 
 if ET8500S
 dist_install_DATA += verdana.ttf
+endif
+
+if HAVE_COLORLCD220
+dist_install_DATA += hd2.ttf tuxtxt2.ttf
+endif
+
+if HAVE_COLORLCD400
+dist_install_DATA += hd2.ttf tuxtxt2.ttf robotobold.ttf robotoregular.ttf OpenSans-Regular.ttf verdana.ttf
+endif
+
+if HAVE_COLORLCD400S
+dist_install_DATA += hd2.ttf tuxtxt2.ttf robotobold.ttf robotoregular.ttf OpenSans-Regular.ttf verdana.ttf
 endif
 
 if OSMIO4KPLUS
