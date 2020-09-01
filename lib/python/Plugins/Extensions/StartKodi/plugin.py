@@ -19,7 +19,7 @@ from Plugins.Extensions.StartKodi.installsomething import InstallSomething
 
 class StartKodi2(Screen):
 
-	kodi_name = "kodi-amlogic"
+	kodi_name = "stb-kodi-wetekplay"
 	kodineeds = 200             # TODO: check real needs, more likely to be ~ 300MB
 	caninstall = False
 	isinstalled = False
@@ -39,7 +39,7 @@ class StartKodi2(Screen):
 		Screen.__init__(self, session)
 
 		freembsd = str(self.getFreeSD())
-		freemb = str(self.getFreeNand()) 
+		freemb = str(self.getFreeNand())
 		isInstalled = str(self.isKodiInstalled())
 
 		self["text"] = Label(_("Please press OK to start Kodi..."))
@@ -56,7 +56,7 @@ class StartKodi2(Screen):
 			"ok": self.ok,
 			"cancel": self.close,
 		})
-		self.onShown.append(self.onFirstShown)   ### !!! A must to avoid modal crap 
+		self.onShown.append(self.onFirstShown)   ### !!! A must to avoid modal crap
 
 	def onFirstShown(self):
 		self.onShown.remove(self.onFirstShown)   ### avoid perpetual installs
@@ -83,7 +83,7 @@ class StartKodi2(Screen):
 			self.KodiInstallation = InstallSomething(self.session, [self.kodi_name])
 			self.KodiInstallation.__install__()
 			self.isinstalled = True                 # actually very bad, we did not check for errors
-			os.system("touch /etc/.kodistart")      # but enigma2.sh checks for /usr/bin/xbmc 
+			os.system("touch /etc/.kodistart")      # but enigma2.sh checks for /usr/bin/xbmc
 
 
 ### TODO: done touch(es) should go here
@@ -113,7 +113,7 @@ class StartKodi2(Screen):
 			self.caninstall = True
 		else:
 			self.caninstall = False
-		return free  
+		return free
 		#hopefully returrn free MBs in NAND/uSD
 		#self["lab_flash"].setText("%sB out of %sB" % (c[3], c[1]))
 		#self["Used"].setText("Used: %s" % c[2])
@@ -127,16 +127,16 @@ class StartKodi2(Screen):
 		sizeread = os.popen("df | grep %s | tr -s ' '" % 'uSDextra')
 		c = sizeread.read().strip().split(" ")
 		sizeread.close()
-		if os.path.exists("/media/uSDextra"): 
+		if os.path.exists("/media/uSDextra"):
 			free = int(c[3])/1024
 		else:
-			free = "Not available" 
-		return free  
+			free = "Not available"
+		return free
 
 
 ### not very clever...
 	def isKodiInstalled(self):
-		if os.path.exists("/usr/lib/kodi/kodi.bin"):
+		if os.path.exists("/usr/lib/kodi/kodi-aml"):
 			self.isinstalled = True
 			return True
 		else:
@@ -183,6 +183,3 @@ def Plugins(**kwargs):
 	PluginDescriptor(name = _("Start Kodi"), description = _("Play back media files"), where = PluginDescriptor.WHERE_MENU, needsRestart = False, fnc = menu)
 ]
 #	PluginDescriptor(name = _("StartKodi"), description = _("Play back media files"), where = PluginDescriptor.WHERE_EXTENSIONSMENU, needsRestart = False, fnc = menu)
-
-
-
