@@ -3,14 +3,14 @@
 	<!-- ## ANALOGUE CLOCK ## -->
 	<screen name="AnalogueClock">
 		<ePixmap pixmap="analogclock.png" position="186,32" size="800,480" transparent="1" alphatest="on" />
-		<widget source="global.CurrentTime" render="AnalogClockLCD" position="center,center" size="425,420" hColor="black" positionwidth="425" positionheight="420" linewidth="10" linesize="120" zPosition="3" alphatest="on">
-			<convert type="AnalogClock">Hours</convert>
+		<widget source="global.CurrentTime" render="EtAnalogClockLCD" position="center,center" size="425,420" hColor="black" positionwidth="425" positionheight="420" linewidth="10" linesize="120" zPosition="3" alphatest="on">
+			<convert type="OMaclock">Hours</convert>
 		</widget>
-		<widget source="global.CurrentTime" render="AnalogClockLCD" position="center,center" size="425,420" mColor="black" positionwidth="425" positionheight="420" linewidth="9" linesize="170" zPosition="4" alphatest="on">
-			<convert type="AnalogClock">Minutes</convert>
+		<widget source="global.CurrentTime" render="EtAnalogClockLCD" position="center,center" size="425,420" mColor="black" positionwidth="425" positionheight="420" linewidth="9" linesize="170" zPosition="4" alphatest="on">
+			<convert type="OMaclock">Minutes</convert>
 		</widget>
-		<widget source="global.CurrentTime" render="AnalogClockLCD" position="center,center" size="425,420" sColor="red" positionwidth="425" positionheight="420" linewidth="6" linesize="170" zPosition="5" alphatest="on">
-			<convert type="AnalogClock">Seconds</convert>
+		<widget source="global.CurrentTime" render="EtAnalogClockLCD" position="center,center" size="425,420" sColor="red" positionwidth="425" positionheight="420" linewidth="6" linesize="170" zPosition="5" alphatest="on">
+			<convert type="OMaclock">Seconds</convert>
 		</widget>
 	</screen>
 	
@@ -275,13 +275,13 @@
             <convert type="ClockToText">Default</convert>
         </widget>
 	</screen>
-    <screen name="LCDPicon">
+	<screen name="LCDPicon">
 		<widget source="session.CurrentService" render="LcdPicon" position="40,40" size="350,210" transparent="1" alphatest="blend" zPosition="2">	
 			<convert type="ServiceName">Reference</convert>
 		</widget>
 		<widget source="global.CurrentTime" render="Label" position="540,10" size="220,84" font="FdLcD;84" halign="left" backgroundColor="LCDBackground">
 			<convert type="ClockToText">Default</convert>
-		</widget>			
+		</widget>
 	</screen>
 	<screen name="LCDChannelSelectionPicon">
 		<widget source="parent.ServiceEvent" render="LcdPicon" position="40,40" size="350,210" transparent="1" alphatest="blend" zPosition="2">	
