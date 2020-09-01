@@ -1,11 +1,9 @@
-SUBDIRS = fonts keymaps
+SUBDIRS = fonts keymaps spinner
 
 dist_pkgdata_DATA = \
 	encoding.conf \
 	keymap.xml \
 	keytranslation.xml \
-	keymap.ntr \
-	keymap.u80 \
 	menu.xml \
 	black.mvi \
 	rcpositions.xml \
@@ -24,7 +22,6 @@ dist_pkgdata_DATA = \
 	otv_00820000_fbff_16a8.dict \
 	otv_06180000_1000_0011.dict \
 	otv_06400000_00a9_0003.dict
-
 
 if HAVE_7SEGMENT
 SUBDIRS += 7segment
@@ -51,7 +48,7 @@ SUBDIRS += display128
 endif
 
 if HAVE_COLORLCD220
-SUBDIRS += display220
+SUBDIRS += display220 clock220
 endif
 
 if HAVE_COLORLCD390
@@ -59,11 +56,15 @@ SUBDIRS += display390
 endif
 
 if HAVE_COLORLCD400
-SUBDIRS += display400
+SUBDIRS += display400 clock400
+endif
+
+if HAVE_COLORLCD400S
+SUBDIRS += display400 clock400s
 endif
 
 if HAVE_COLORLCD480
-SUBDIRS += display480
+SUBDIRS += display480 clock480
 endif
 
 if HAVE_COLORLCD720
@@ -71,7 +72,7 @@ SUBDIRS += display720
 endif
 
 if HAVE_COLORLCD800
-SUBDIRS += display800
+SUBDIRS += display800 clock800
 endif
 
 if HAVE_BWLCD255
@@ -93,4 +94,3 @@ endif
 if HAVE_GRAUTEC70X0
 SUBDIRS += grautec70x0
 endif
-
