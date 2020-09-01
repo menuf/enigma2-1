@@ -5,7 +5,10 @@ from Tools.Alternatives import GetWithAlternative
 from Tools.Directories import pathExists, SCOPE_SKIN_IMAGE, SCOPE_ACTIVE_SKIN, resolveFilename
 from Components.Harddisk import harddiskmanager
 from ServiceReference import ServiceReference
-from Components.config import config, ConfigBoolean
+from Components.config import config, ConfigBoolean, ConfigYesNo, ConfigSelection, ConfigText
+ 
+config.misc.picon_path = ConfigText(default = '/usr/share/enigma2/picon/')
+config.misc.picon_search_hdd = ConfigYesNo (default = False)
 
 searchPaths = []
 lastPiconPath = None
@@ -13,17 +16,39 @@ lastPiconPath = None
 def initPiconPaths():
 	global searchPaths
 	searchPaths = []
-	for mp in ('/usr/share/enigma2/', '/'):
+	path = str(config.misc.picon_path.value)
+	for mp in ('/usr/share/enigma2/', '/', path):
 		onMountpointAdded(mp)
 	for part in harddiskmanager.getMountedPartitions():
-		mp = path = os.path.join(part.mountpoint, 'usr/share/enigma2')
-		onMountpointAdded(part.mountpoint)
-		onMountpointAdded(mp)
+		if not part.mountpoint.startswith('/media/hdd/') or config.misc.picon_search_hdd.value == True: 
+			onMountpointAdded(part.mountpoint)
+			onMountpointAdded(mp)
 
 def onMountpointAdded(mountpoint):
 	global searchPaths
 	try:
+		path = os.path.join(mountpoint, 'XPicons') + '/'
+		if os.path.isdir(path) and path not in searchPaths:
+			for fn in os.listdir(path):
+				if fn.endswith('.png'):
+					print "[Picon] adding path:", path
+					searchPaths.append(path)
+					break
+		path = os.path.join(mountpoint, 'XPicons/picon') + '/'
+		if os.path.isdir(path) and path not in searchPaths:
+			for fn in os.listdir(path):
+				if fn.endswith('.png'):
+					print "[Picon] adding path:", path
+					searchPaths.append(path)
+					break
 		path = os.path.join(mountpoint, 'picon') + '/'
+		if os.path.isdir(path) and path not in searchPaths:
+			for fn in os.listdir(path):
+				if fn.endswith('.png'):
+					print "[Picon] adding path:", path
+					searchPaths.append(path)
+					break
+		path = mountpoint
 		if os.path.isdir(path) and path not in searchPaths:
 			for fn in os.listdir(path):
 				if fn.endswith('.png'):
@@ -54,26 +79,22 @@ def findPicon(serviceName):
 		pngname = lastPiconPath + serviceName + ".png"
 		if pathExists(pngname):
 			return pngname
-		else:
-			return ""
-	else:
-		global searchPaths
-		pngname = ""
-		for path in searchPaths:
-			if pathExists(path) and not path.startswith('/media/net'):
-				pngname = path + serviceName + ".png"
-				if pathExists(pngname):
-					lastPiconPath = path
-					break
-			elif pathExists(path):
-				pngname = path + serviceName + ".png"
-				if pathExists(pngname):
-					lastPiconPath = path
-					break
-		if pathExists(pngname):
-			return pngname
-		else:
-			return ""
+	global searchPaths
+	pngname = ""
+	for path in searchPaths:
+		if pathExists(path) and not path.startswith('/media/net'):
+			pngname = path + serviceName + ".png"
+			if pathExists(pngname):
+				lastPiconPath = path
+				break
+		elif pathExists(path):
+			pngname = path + serviceName + ".png"
+			if pathExists(pngname):
+				lastPiconPath = path
+				break
+	if pathExists(pngname):
+		return pngname
+	return ""
 
 def getPiconName(serviceName):
 	#remove the path and name fields, and replace ':' by '_'
@@ -171,9 +192,11 @@ class Picon(Renderer):
 					else:
 						self.instance.hide()
 					self.pngname = pngname
-			elif what[0] == 2:
-				self.pngname = ""
-				self.instance.hide()
+
+def setPiconPath():
+	global lastPiconPath
+	lastPiconPath = None
+	initPiconPaths()
 
 harddiskmanager.on_partition_list_change.append(onPartitionChange)
 initPiconPaths()
