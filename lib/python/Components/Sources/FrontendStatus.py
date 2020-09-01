@@ -1,5 +1,4 @@
-from __future__ import absolute_import
-from Components.Sources.Source import Source
+from Source import Source
 from enigma import eTimer
 
 class FrontendStatus(Source):
@@ -54,4 +53,3 @@ class FrontendStatus(Source):
 	def destroy(self):
 		self.poll_timer.callback.remove(self.updateFrontendStatus)
 		Source.destroy(self)
-

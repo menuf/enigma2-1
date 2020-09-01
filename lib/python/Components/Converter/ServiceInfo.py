@@ -1,9 +1,8 @@
-from __future__ import absolute_import
 from Components.Converter.Converter import Converter
 from enigma import iServiceInformation, iPlayableService, eServiceReference
 from Screens.InfoBarGenerics import hasActiveSubservicesForCurrentChannel
 from Components.Element import cached
-from Components.Converter.Poll import Poll
+from Poll import Poll
 from Tools.Transponder import ConvertToHumanReadable
 
 from os import path
@@ -43,20 +42,22 @@ class ServiceInfo(Poll, Converter, object):
 	IS_480 = 30
 	IS_4K = 31
 	IS_IPSTREAM = 32
-	IS_SDR = 33
-	IS_HDR = 34
-	IS_HDR10 = 35
-	IS_HLG = 36
-	IS_HDHDR = 37
-	FREQ_INFO = 38
-	PROGRESSIVE = 39
-	VIDEO_INFO = 40
+	VIDEO_PARAMS = 33
+	IS_SDR = 34
+	IS_HDR = 35
+	IS_HDR10 = 36
+	IS_HLG = 37
+	IS_HDHDR = 38
+	FREQ_INFO = 39
+	PROGRESSIVE = 40
+	VIDEO_INFO = 41
 
 	def __init__(self, type):
 		Poll.__init__(self)
 		Converter.__init__(self, type)
 		self.poll_interval = 10000
 		self.poll_enabled = True
+
 		self.type, self.interesting_events = {
 			"HasTelext": (self.HAS_TELETEXT, (iPlayableService.evUpdatedInfo,)),
 			"IsMultichannel": (self.IS_MULTICHANNEL, (iPlayableService.evUpdatedInfo,)),
@@ -67,6 +68,7 @@ class ServiceInfo(Poll, Converter, object):
 			"SubservicesAvailable": (self.SUBSERVICES_AVAILABLE, (iPlayableService.evUpdatedEventInfo,)),
 			"VideoWidth": (self.XRES, (iPlayableService.evVideoSizeChanged,)),
 			"VideoHeight": (self.YRES, (iPlayableService.evVideoSizeChanged,)),
+			"VideoParams": (self.VIDEO_PARAMS, (iPlayableService.evVideoSizeChanged, iPlayableService.evVideoProgressiveChanged, iPlayableService.evVideoFramerateChanged)),
 			"AudioPid": (self.APID, (iPlayableService.evUpdatedInfo,)),
 			"VideoPid": (self.VPID, (iPlayableService.evUpdatedInfo,)),
 			"PcrPid": (self.PCRPID, (iPlayableService.evUpdatedInfo,)),
@@ -75,29 +77,29 @@ class ServiceInfo(Poll, Converter, object):
 			"TsId": (self.TSID, (iPlayableService.evUpdatedInfo,)),
 			"OnId": (self.ONID, (iPlayableService.evUpdatedInfo,)),
 			"Sid": (self.SID, (iPlayableService.evUpdatedInfo,)),
-			"Framerate": (self.FRAMERATE, (iPlayableService.evVideoSizeChanged, iPlayableService.evUpdatedInfo,)),
+			"Framerate": (self.FRAMERATE, (iPlayableService.evVideoSizeChanged,iPlayableService.evUpdatedInfo,)),
 			"Progressive": (self.PROGRESSIVE, (iPlayableService.evVideoProgressiveChanged, iPlayableService.evUpdatedInfo,)),
 			"VideoInfo": (self.VIDEO_INFO, (iPlayableService.evVideoSizeChanged, iPlayableService.evVideoFramerateChanged, iPlayableService.evVideoProgressiveChanged, iPlayableService.evUpdatedInfo,)),
 			"TransferBPS": (self.TRANSFERBPS, (iPlayableService.evUpdatedInfo,)),
-			"HasHBBTV": (self.HAS_HBBTV, (iPlayableService.evUpdatedInfo, iPlayableService.evHBBTVInfo,)),
+			"HasHBBTV": (self.HAS_HBBTV, (iPlayableService.evUpdatedInfo,iPlayableService.evHBBTVInfo,)),
 			"AudioTracksAvailable": (self.AUDIOTRACKS_AVAILABLE, (iPlayableService.evUpdatedInfo,)),
 			"SubtitlesAvailable": (self.SUBTITLES_AVAILABLE, (iPlayableService.evUpdatedInfo,)),
 			"Freq_Info": (self.FREQ_INFO, (iPlayableService.evUpdatedInfo,)),
 			"Editmode": (self.EDITMODE, (iPlayableService.evUpdatedInfo,)),
 			"IsStream": (self.IS_STREAM, (iPlayableService.evUpdatedInfo,)),
 			"IsSD": (self.IS_SD, (iPlayableService.evVideoSizeChanged,)),
-			"IsHD": (self.IS_HD, (iPlayableService.evVideoSizeChanged, iPlayableService.evVideoGammaChanged,)),
+			"IsHD": (self.IS_HD, (iPlayableService.evVideoSizeChanged,iPlayableService.evVideoGammaChanged,)),
 			"Is1080": (self.IS_1080, (iPlayableService.evVideoSizeChanged,)),
 			"Is720": (self.IS_720, (iPlayableService.evVideoSizeChanged,)),
 			"Is576": (self.IS_576, (iPlayableService.evVideoSizeChanged,)),
 			"Is480": (self.IS_480, (iPlayableService.evVideoSizeChanged,)),
-			"Is4K": (self.IS_4K, (iPlayableService.evVideoSizeChanged, iPlayableService.evVideoGammaChanged,)),
+			"Is4K": (self.IS_4K, (iPlayableService.evVideoSizeChanged,iPlayableService.evVideoGammaChanged,)),
 			"IsIPStream": (self.IS_IPSTREAM, (iPlayableService.evUpdatedInfo,)),
-			"IsSDR": (self.IS_SDR, (iPlayableService.evVideoSizeChanged, iPlayableService.evVideoGammaChanged,)),
-			"IsHDR": (self.IS_HDR, (iPlayableService.evVideoSizeChanged, iPlayableService.evVideoGammaChanged,)),
-			"IsHDR10": (self.IS_HDR10, (iPlayableService.evVideoSizeChanged, iPlayableService.evVideoGammaChanged,)),
-			"IsHLG": (self.IS_HLG, (iPlayableService.evVideoSizeChanged, iPlayableService.evVideoGammaChanged,)),
-			"IsHDHDR": (self.IS_HDHDR, (iPlayableService.evVideoSizeChanged, iPlayableService.evVideoGammaChanged,)),
+			"IsSDR": (self.IS_SDR, (iPlayableService.evVideoSizeChanged,iPlayableService.evVideoGammaChanged,)),
+			"IsHDR": (self.IS_HDR, (iPlayableService.evVideoSizeChanged,iPlayableService.evVideoGammaChanged,)),
+			"IsHDR10": (self.IS_HDR10, (iPlayableService.evVideoSizeChanged,iPlayableService.evVideoGammaChanged,)),
+			"IsHLG": (self.IS_HLG, (iPlayableService.evVideoSizeChanged,iPlayableService.evVideoGammaChanged,)),
+			"IsHDHDR": (self.IS_HDHDR, (iPlayableService.evVideoSizeChanged,iPlayableService.evVideoGammaChanged,)),
 		}[type]
 		self.interesting_events += (iPlayableService.evStart,)
 
@@ -130,7 +132,7 @@ class ServiceInfo(Poll, Converter, object):
 			f.close()
 			if val >= 2 ** 31:
 				val -= 2 ** 32
-		except Exception as e:
+		except Exception, e:
 			pass
 		return val
 
@@ -214,7 +216,7 @@ class ServiceInfo(Poll, Converter, object):
 				while idx < n:
 					i = audio.getTrackInfo(idx)
 					description = i.getDescription()
-					if description and description.split()[0] in ("AC3", "AC-3", "AC3+", "DTS"): # some audio description has 'audio' as additional value (e.g. 'AC-3 audio')
+					if description in ("AC3", "AC-3", "AC3+", "DTS", "DTS-HD"):
 						if self.type == self.IS_MULTICHANNEL:
 							return True
 						elif self.type == self.AUDIO_STEREO:
@@ -237,7 +239,7 @@ class ServiceInfo(Poll, Converter, object):
 			return info.getInfoString(iServiceInformation.sHBBTVUrl) != ""
 		elif self.type == self.AUDIOTRACKS_AVAILABLE:
 			audio = service.audioTracks()
-			return audio and audio.getNumberOfTracks() > 1
+			return bool(audio) and audio.getNumberOfTracks() > 1
 		elif self.type == self.SUBTITLES_AVAILABLE:
 			subtitle = service and service.subtitle()
 			subtitlelist = subtitle and subtitle.getSubtitleList()
@@ -334,6 +336,15 @@ class ServiceInfo(Poll, Converter, object):
 			return self.getServiceInfoString(info, iServiceInformation.sTransferBPS, lambda x: "%d kB/s" % (x/1024))
 		elif self.type == self.HAS_HBBTV:
 			return info.getInfoString(iServiceInformation.sHBBTVUrl)
+		elif self.type == self.VIDEO_PARAMS:
+			yres = info.getInfo(iServiceInformation.sVideoHeight)
+			frame_rate = info.getInfo(iServiceInformation.sFrameRate)
+			progressive = info.getInfo(iServiceInformation.sProgressive)
+			print "yres", yres, "frame_rate", frame_rate, "progressive", progressive
+			if not progressive:
+				frame_rate *= 2
+			frame_rate = (frame_rate+500)/1000
+			return "%d%s%d" % (yres, 'p' if progressive else 'i', frame_rate)
 		elif self.type == self.FREQ_INFO:
 			feinfo = service.frontendInfo()
 			if feinfo is None:
@@ -386,7 +397,7 @@ class ServiceInfo(Poll, Converter, object):
 			if path.exists("/proc/stb/vmpeg/0/xres"):
 				f = open("/proc/stb/vmpeg/0/xres", "r")
 				try:
-					video_width = int(f.read(), 16)
+					video_width = int(f.read(),16)
 				except:
 					video_width = None
 				f.close()
@@ -398,7 +409,7 @@ class ServiceInfo(Poll, Converter, object):
 			if path.exists("/proc/stb/vmpeg/0/yres"):
 				f = open("/proc/stb/vmpeg/0/yres", "r")
 				try:
-					video_height = int(f.read(), 16)
+					video_height = int(f.read(),16)
 				except:
 					video_height = None
 				f.close()
@@ -417,7 +428,11 @@ class ServiceInfo(Poll, Converter, object):
 			if not video_rate:
 				video_rate = info.getInfo(iServiceInformation.sFrameRate)
 			return str(video_rate)
-
+		elif self.type == self.VIDEO_PARAMS:
+			return -1 if info.getInfo(iServiceInformation.sVideoHeight) < 0 \
+				or info.getInfo(iServiceInformation.sFrameRate) < 0 \
+				or info.getInfo(iServiceInformation.sProgressive) < 0 \
+				else -2
 		return -1
 
 	value = property(getValue)

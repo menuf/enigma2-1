@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 # shamelessly copied from pliExpertInfo (Vali, Mirakels, Littlesat)
 
 from os import path
@@ -8,10 +7,7 @@ from Components.Element import cached
 from Components.config import config
 from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
 from Tools.GetEcmInfo import GetEcmInfo
-from Components.Converter.Poll import Poll
-import six
-
-SIGN = '°' if six.PY3 else str('\xc2\xb0')
+from Poll import Poll
 
 caid_data = (
 	( "0x100",  "0x1ff", "Seca",     "S",  True  ),
@@ -81,8 +77,8 @@ class PliExtraInfo(Poll, Converter, object):
 			("CryptoCaidNagraAvailable",	"N",	False),
 			("CryptoCaidBissAvailable",	"Bi",	False),
 			("CryptoCaidDreAvailable",	"D",	False),
-			("CryptoCaidBulCrypt1Available", "B1",	False),
-			("CryptoCaidBulCrypt2Available", "B2",	False),
+			("CryptoCaidBulCrypt1Available","B1",	False),
+			("CryptoCaidBulCrypt2Available","B2",	False),
 			("CryptoCaidTandbergAvailable",	"T",	False),
 			("CryptoCaidSecaSelected",	"S",	True),
 			("CryptoCaidViaSelected",	"V",	True),
@@ -103,7 +99,7 @@ class PliExtraInfo(Poll, Converter, object):
 		self.feraw = self.fedata = self.updateFEdata = None
 
 	def getCryptoInfo(self, info):
-		if info.getInfo(iServiceInformation.sIsCrypted) == 1:
+		if (info.getInfo(iServiceInformation.sIsCrypted) == 1):
 			data = self.ecmdata.getEcmData()
 			self.current_source = data[0]
 			self.current_caid = data[1]
@@ -337,21 +333,21 @@ class PliExtraInfo(Poll, Converter, object):
 				if int(caid_entry[0], 16) <= int(self.current_caid, 16) <= int(caid_entry[1], 16):
 					caid_name = caid_entry[2]
 					break
-			return caid_name + ":%04x:%04x:%04x" % (int(self.current_caid, 16), int(self.current_provid, 16), info.getInfo(iServiceInformation.sSID))
+			return caid_name + ":%04x:%04x:%04x" % (int(self.current_caid,16), int(self.current_provid,16), info.getInfo(iServiceInformation.sSID))
 		except:
 			pass
 		return ""
 
 	def createCryptoNameCaid(self, info):
 		caid_name = "FTA"
-		if int(self.current_caid, 16) == 0:
+		if int(self.current_caid,16) == 0:
 			return caid_name
 		try:
 			for caid_entry in self.caid_data:
 				if int(caid_entry[0], 16) <= int(self.current_caid, 16) <= int(caid_entry[1], 16):
 					caid_name = caid_entry[2]
 					break
-			return caid_name + ":%04x" % (int(self.current_caid, 16))
+			return caid_name + ":%04x" % (int(self.current_caid,16))
 		except:
 			pass
 		return ""
@@ -364,21 +360,21 @@ class PliExtraInfo(Poll, Converter, object):
 		if path.exists("/proc/stb/vmpeg/0/yres"):
 			f = open("/proc/stb/vmpeg/0/yres", "r")
 			try:
-				video_height = int(f.read(), 16)
+				video_height = int(f.read(),16)
 			except:
 				pass
 			f.close()
 		if path.exists("/proc/stb/vmpeg/0/xres"):
 			f = open("/proc/stb/vmpeg/0/xres", "r")
 			try:
-				video_width = int(f.read(), 16)
+				video_width = int(f.read(),16)
 			except:
 				pass
 			f.close()
 		if path.exists("/proc/stb/vmpeg/0/progressive"):
 			f = open("/proc/stb/vmpeg/0/progressive", "r")
 			try:
-				video_pol = "p" if int(f.read(), 16) else "i"
+				video_pol = "p" if int(f.read(),16) else "i"
 			except:
 				pass
 			f.close()
@@ -484,18 +480,18 @@ class PliExtraInfo(Poll, Converter, object):
 	def createOrbPos(self, feraw):
 		orbpos = feraw.get("orbital_position")
 		if orbpos > 1800:
-			return str((float(3600 - orbpos)) / 10.0) + SIGN + "W"
+			return str((float(3600 - orbpos)) / 10.0) + "\xc2\xb0 W"
 		elif orbpos > 0:
-			return str((float(orbpos)) / 10.0) + SIGN + "E"
+			return str((float(orbpos)) / 10.0) + "\xc2\xb0 E"
 		return ""
 
-	def createOrbPosOrTunerSystem(self, fedata, feraw):
+	def createOrbPosOrTunerSystem(self, fedata,feraw):
 		orbpos = self.createOrbPos(feraw)
-		if orbpos != "":
+		if orbpos is not "":
 			return orbpos
 		return self.createTunerSystem(fedata)
 
-	def createTransponderName(self, feraw):
+	def createTransponderName(self,feraw):
 		orbpos = feraw.get("orbital_position")
 		if orbpos is None: # Not satellite
 			return ""
@@ -605,7 +601,7 @@ class PliExtraInfo(Poll, Converter, object):
 		else:
 			return str((float(orbpos)) / 10.0) + "E"
 
-	def createProviderName(self, info):
+	def createProviderName(self,info):
 		return info.getInfoString(iServiceInformation.sProvider)
 
 	def createMisPls(self, fedata):
@@ -630,104 +626,104 @@ class PliExtraInfo(Poll, Converter, object):
 
 		if self.type == "CryptoInfo":
 			self.getCryptoInfo(info)
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				return addspace(self.createCryptoBar(info)) + self.createCryptoSpecial(info)
 			else:
 				return addspace(self.createCryptoBar(info)) + addspace(self.current_source) + self.createCryptoSpecial(info)
 
 		if self.type == "CryptoBar":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoBar(info)
 			else:
 				return ""
 
 		if self.type == "CryptoSeca":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoSeca(info)
 			else:
 				return ""
 
 		if self.type == "CryptoVia":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoVia(info)
 			else:
 				return ""
 
 		if self.type == "CryptoIrdeto":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoIrdeto(info)
 			else:
 				return ""
 
 		if self.type == "CryptoNDS":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoNDS(info)
 			else:
 				return ""
 
 		if self.type == "CryptoConax":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoConax(info)
 			else:
 				return ""
 
 		if self.type == "CryptoCryptoW":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoCryptoW(info)
 			else:
 				return ""
 
 		if self.type == "CryptoBeta":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoBeta(info)
 			else:
 				return ""
 
 		if self.type == "CryptoNagra":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoNagra(info)
 			else:
 				return ""
 
 		if self.type == "CryptoBiss":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoBiss(info)
 			else:
 				return ""
 
 		if self.type == "CryptoDre":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoDre(info)
 			else:
 				return ""
 				
 		if self.type == "CryptoTandberg":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoTandberg(info)
 			else:
 				return ""				
 
 		if self.type == "CryptoSpecial":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoSpecial(info)
 			else:
 				return ""
 
 		if self.type == "CryptoNameCaid":
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				self.getCryptoInfo(info)
 				return self.createCryptoNameCaid(info)
 			else:
@@ -756,7 +752,7 @@ class PliExtraInfo(Poll, Converter, object):
 			fedata = self.fedata
 		if self.type == "All":
 			self.getCryptoInfo(info)
-			if int(config.usage.show_cryptoinfo.value) > 0:
+			if config.usage.show_cryptoinfo.value:
 				return addspace(self.createProviderName(info)) + self.createTransponderInfo(fedata, feraw, info) + addspace(self.createTransponderName(feraw)) + "\n"\
 				+ addspace(self.createCryptoBar(info)) + addspace(self.createCryptoSpecial(info)) + "\n"\
 				+ addspace(self.createPIDInfo(info)) + addspace(self.createVideoCodec(info)) + self.createResolution(info)
@@ -812,7 +808,7 @@ class PliExtraInfo(Poll, Converter, object):
 			return self.createTunerSystem(fedata)
 
 		if self.type == "OrbitalPositionOrTunerSystem":
-			return self.createOrbPosOrTunerSystem(fedata, feraw)
+			return self.createOrbPosOrTunerSystem(fedata,feraw)
 
 		if self.type == "TerrestrialChannelNumber":
 			return self.createChannelNumber(fedata, feraw)

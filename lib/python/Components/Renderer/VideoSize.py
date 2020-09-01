@@ -1,7 +1,6 @@
-from __future__ import absolute_import
 from Components.VariableText import VariableText
 from enigma import eLabel, iServiceInformation
-from Components.Renderer.Renderer import Renderer
+from Renderer import Renderer
 
 #
 # borrowed from vali, addapter for openpli
@@ -25,4 +24,3 @@ class VideoSize(Renderer, VariableText):
 			self.text = str(xresol)+'x'+str(yresol)
 		else:
 			self.text = ''
-
