@@ -23,7 +23,7 @@
 
 static const char *crash_emailaddr =
 #ifndef CRASH_EMAILADDR
-	"the openATV forum";
+	"the openSPA forum";
 #else
 	CRASH_EMAILADDR;
 #endif
@@ -102,17 +102,14 @@ static void stringFromFile(FILE* f, const char* context, const char* filename)
 static bool bsodhandled = false;
 static bool bsodrestart =  true;
 static int bsodcnt = 0;
-
 int getBsodCounter()
 {
 	return bsodcnt;
 }
-
 void resetBsodCounter()
 {
 	bsodcnt = 0;
 }
-
 bool bsodRestart()
 {
 	return bsodrestart;
@@ -128,15 +125,14 @@ void bsodFatal(const char *component)
 	int bsodmax = eConfigManager::getConfigIntValue("config.crash.bsodmax", 5);
 	//force restart after max crashes
 	int bsodmaxmax = 100;
-
 	bsodcnt++;
 	if ((bsodmax && bsodcnt > bsodmax) || component || bsodcnt > bsodmaxmax)
 		bsodpython = false;
 	if (bsodpython && bsodcnt-1 && bsodcnt > bsodhide && (!bsodmax || bsodcnt < bsodmax) && bsodcnt < bsodmaxmax)
-	{	
+	{
 		sleep(1);
 		return;
-	}	
+	}
 	bsodrestart = true;
 
 	/* show no more than one bsod while shutting down/crashing */
@@ -199,7 +195,7 @@ void bsodFatal(const char *component)
 		strftime(tm_str, sizeof(tm_str), "%a %b %_d %T %Y", &tm);
 
 		fprintf(f,
-			"openATV Enigma2 crash log\n\n"
+			"openSPA Enigma2 crash log\n\n"
 			"crashdate=%s\n"
 			"compiledate=%s\n"
 			"skin=%s\n"
@@ -268,9 +264,8 @@ void bsodFatal(const char *component)
 	os.clear();
 	os_text.clear();
 
-	
 	if (!bsodpython)
-	{	
+	{
 		os_text << "We are really sorry. Your receiver encountered "
 			"a software problem, and needs to be restarted.\n"
 			"Please send the logfile " << crashlog_name << " to " << crash_emailaddr << ".\n"
@@ -280,7 +275,7 @@ void bsodFatal(const char *component)
 		os << getConfigString("config.crash.debug_text", os_text.str());
 	}
 	else
-	{	
+	{
 		std::string txt;
 		if (!bsodmax && bsodcnt < bsodmaxmax)
 			txt = "not (max " + std::to_string(bsodmaxmax) + " times)";	
@@ -361,9 +356,9 @@ void bsodFatal(const char *component)
 	 * We'd risk destroying things with every additional instruction we're
 	 * executing here.
 	 */
-	
+
 	if (bsodpython)	
-	{	
+	{
 		bsodrestart = false;
 		bsodhandled = false;
 		p.setBackgroundColor(gRGB(0,0,0,0xFF));
@@ -400,7 +395,7 @@ void print_backtrace()
 
 	size = backtrace(array, 15);
 	eDebug("Backtrace:");
-	for (cnt = 1; static_cast<unsigned>(cnt) < size; ++cnt)
+	for (cnt = 1; cnt < size; ++cnt)
 	{
 		Dl_info info;
 
