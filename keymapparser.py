@@ -1,4 +1,3 @@
-from __future__ import print_function
 import enigma
 import xml.etree.cElementTree
 
@@ -88,9 +87,9 @@ def readKeymap(filename):
 	assert p
 
 	try:
-		source = open(filename, 'r')
+		source = open(filename)
 	except:
-		print("[keymapparser] keymap file " + filename + " not found")
+		print "[keymapparser] keymap file " + filename + " not found"
 		return
 
 	try:

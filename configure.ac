@@ -1,4 +1,4 @@
-AC_INIT([enigma2],[6.5],[https://www.opena.tv])
+AC_INIT([enigma2],[7.4],[https://openspa.info])
 AM_INIT_AUTOMAKE([dist-bzip2 no-define tar-pax -Wno-portability])
 AC_CONFIG_HEADERS([enigma2_config.h])
 
@@ -42,6 +42,7 @@ AC_ARG_WITH(gstversion,
 PKG_CHECK_MODULES(TUXTXT, tuxbox-tuxtxt)
 PKG_CHECK_MODULES(GSTREAMER, gstreamer-$GST_MAJORMINOR gstreamer-pbutils-$GST_MAJORMINOR)
 PKG_CHECK_MODULES(BASE, [freetype2 fribidi gstreamer-$GST_MAJORMINOR gstreamer-pbutils-$GST_MAJORMINOR libdvbsi++ libpng libxml-2.0 sigc++-2.0 libssl libcrypto])
+PKG_CHECK_MODULES(UCHARDET, uchardet)
 PKG_CHECK_MODULES(LIBDDVD, libdreamdvd, HAVE_LIBDDVD="yes", HAVE_LIBDDVD="no")
 AM_CONDITIONAL(HAVE_LIBDDVD, test "$HAVE_LIBDDVD" = "yes")
 PKG_CHECK_MODULES(AVAHI, avahi-client)
@@ -388,6 +389,17 @@ fi
 
 AM_CONDITIONAL(HAVE_COLORLCD400, test x"$withcolorlcd400" != xno)
 
+AC_ARG_WITH(colorlcd400s,
+	AC_HELP_STRING([--with-colorlcd400s], [use 400x176 16bpp color display, yes or no]),
+	[[withcolorlcd400s=$withval]],
+	[[withcolorlcd400s=no]]
+)
+if test x"$withcolorlcd400s" != xno ; then
+	AC_DEFINE(HAVE_COLORLCD400S, 1,[Define when using a 400x176 color display device])
+fi
+
+AM_CONDITIONAL(HAVE_COLORLCD400S, test x"$withcolorlcd400s" != xno)
+
 AC_ARG_WITH(colorlcd480,
 	AC_HELP_STRING([--with-colorlcd480], [use 480x320 16bpp color display, yes or no]),
 	[[withcolorlcd480=$withval]],
@@ -555,7 +567,7 @@ if test "$BOXTYPE" == "vuzero" -o "$BOXTYPE" == "vuuno" -o "$BOXTYPE" == "vuulti
 	AC_DEFINE(FORCE_AUTO_INV, 1,[force Inversion auto for vu mipsel boxes])
 fi
 
-if test "$BOXTYPE" == "u5" -o "$BOXTYPE" == "u5pvr" -o "$BOXTYPE" == "u51" -o "$BOXTYPE" == "u52" -o "$BOXTYPE" == "u53" -o "$BOXTYPE" == "u532" -o "$BOXTYPE" == "u533" -o "$BOXTYPE" == "u54" -o "$BOXTYPE" == "u55" -o "$BOXTYPE" == "u56" -o "$BOXTYPE" == "u57" -o "$BOXTYPE" == "u41" -o "$BOXTYPE" == "u42" -o "$BOXTYPE" == "u43"; then
+if test "$BOXTYPE" == "u5" -o "$BOXTYPE" == "u5pvr" -o "$BOXTYPE" == "u51" -o "$BOXTYPE" == "u52" -o "$BOXTYPE" == "u53" -o "$BOXTYPE" == "u532" -o "$BOXTYPE" == "u533" -o "$BOXTYPE" == "u54" -o "$BOXTYPE" == "u55" -o "$BOXTYPE" == "u56" -o "$BOXTYPE" == "u41" -o "$BOXTYPE" == "u42" -o "$BOXTYPE" == "u43"; then
 	AC_DEFINE(HAVE_HISILICON, 1,[define add HISILICON chip])
 fi
 
@@ -705,10 +717,6 @@ if test "$MACHINEBUILD" == "e4hd" -o "$MACHINEBUILD" == "e4hdhybrid"; then
 	AC_DEFINE(KEY_DIRECTORY_TO_KEY_FILE, 1,[define when rc sends a KEY_DIRECTORY event for its KEY_FILE key])
 fi
 
-if test "$MACHINEBUILD" == "beyonwizv2" -o "$MACHINEBUILD" == "beyonwizu4" -o "$MACHINEBUILD" == "beyonwizt2" -o "$MACHINEBUILD" == "beyonwizt3" -o "$MACHINEBUILD" == "beyonwizt4"; then
-	AC_DEFINE(AUSTRALIA, 1,[define AUSTRALIA to enable country config])
-fi
-
 if test "$BOXTYPE" == "odinm9"; then
 	AC_DEFINE(KEY_PLAY_ACTUALLY_IS_KEY_PLAYPAUSE, 1,[define when rc sends a KEY_PLAY event for its KEY_PLAYPAUSE key])
 	AC_DEFINE(FORCE_NO_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration does not have alphablending support, though the autodetection might indicate that it does])
@@ -838,6 +846,20 @@ if test "$with_memcheck" = "yes"; then
 	AC_DEFINE([MEMLEAK_CHECK],[1],[Define to 1 to enable memory leak checks])
 fi
 
+AC_ARG_WITH(po,
+	AS_HELP_STRING([--with-po],[enable updating of po files]),
+	[with_po="$withval"],[with_po="no"])
+if test "$with_po" = "yes"; then
+	AC_PATH_PROG(MSGINIT, msginit)
+	AC_PATH_PROG(MSGMERGE, msgmerge)
+	AC_PATH_PROG(MSGUNIQ, msguniq)
+	AC_PATH_PROG(XGETTEXT, xgettext)
+	if test -z "$MSGINIT" -o -z "$MSGMERGE" -o -z "$MSGUNIQ" -o -z "$XGETTEXT"; then
+		AC_MSG_ERROR([Could not find required gettext tools])
+	fi
+fi
+AM_CONDITIONAL(UPDATE_PO, test "$with_po" = "yes")
+
 ENIGMA2_CFLAGS="-fno-rtti -fno-exceptions -rdynamic -funwind-tables"
 AC_SUBST(ENIGMA2_CFLAGS)
 
@@ -851,7 +873,14 @@ Makefile
 data/Makefile
 data/fonts/Makefile
 data/keymaps/Makefile
+data/spinner/Makefile
 data/7segment/Makefile
+data/7segment/ChannelNumber/Makefile
+data/clock220/Makefile
+data/clock400/Makefile
+data/clock400s/Makefile
+data/clock480/Makefile
+data/clock800/Makefile
 data/displaytext/Makefile
 data/displaydualtext/Makefile
 data/display96/Makefile
@@ -860,7 +889,15 @@ data/display128dm/Makefile
 data/display220/Makefile
 data/display390/Makefile
 data/display400/Makefile
+data/display400/skin_default/Makefile
+data/display400/openSPA_simple/Makefile
+data/display400/openSPA_classic/Makefile
+data/display400/openSPA_modern/Makefile
+data/display400/openSPA_modern_plus/Makefile
+data/display400/openSPA_modern_19/Makefile
 data/display480/Makefile
+data/display480/skin_default/Makefile
+data/display480/Fullscreen_Picon/Makefile
 data/display720/Makefile
 data/display800/Makefile
 data/display800/Default_with_Picon_Fullscreen/Makefile
@@ -882,8 +919,6 @@ lib/python/Components/Sources/Makefile
 lib/python/Screens/Makefile
 lib/python/Plugins/Makefile
 lib/python/Plugins/Extensions/Makefile
-lib/python/Plugins/Extensions/AtileHD/Makefile
-lib/python/Plugins/Extensions/AtileHD/pic/Makefile
 lib/python/Plugins/Extensions/CutListEditor/Makefile
 lib/python/Plugins/Extensions/CutListEditor/meta/Makefile
 lib/python/Plugins/Extensions/DVDBurn/Makefile
@@ -894,6 +929,8 @@ lib/python/Plugins/Extensions/FileCommander/Makefile
 lib/python/Plugins/Extensions/FileCommander/addons/Makefile
 lib/python/Plugins/Extensions/FileCommander/pic/Makefile
 lib/python/Plugins/Extensions/FileCommander/images/Makefile
+lib/python/Plugins/Extensions/GraphMultiEPG/Makefile
+lib/python/Plugins/Extensions/GraphMultiEPG/meta/Makefile
 lib/python/Plugins/Extensions/MediaPlayer/Makefile
 lib/python/Plugins/Extensions/MediaPlayer/meta/Makefile
 lib/python/Plugins/Extensions/MediaScanner/Makefile
@@ -901,18 +938,22 @@ lib/python/Plugins/Extensions/MediaScanner/meta/Makefile
 lib/python/Plugins/Extensions/MiniTV/Makefile
 lib/python/Plugins/Extensions/PicturePlayer/Makefile
 lib/python/Plugins/Extensions/PicturePlayer/meta/Makefile
-lib/python/Plugins/Extensions/ProgrammlistenUpdater/Makefile
 lib/python/Plugins/Extensions/SocketMMI/Makefile
 lib/python/Plugins/Extensions/SocketMMI/meta/Makefile
 lib/python/Plugins/Extensions/SocketMMI/src/Makefile
 lib/python/Plugins/Extensions/TuxboxPlugins/Makefile
 lib/python/Plugins/Extensions/TuxboxPlugins/meta/Makefile
-lib/python/Plugins/Extensions/Infopanel/Makefile
-lib/python/Plugins/Extensions/Infopanel/meta/Makefile
-lib/python/Plugins/Extensions/Infopanel/icons/Makefile
 lib/python/Plugins/Extensions/Volume_adjust/Makefile
 lib/python/Plugins/Extensions/StartKodi/Makefile
 lib/python/Plugins/Extensions/QuadPip/Makefile
+lib/python/Plugins/Extensions/spaTeam/Makefile
+lib/python/Plugins/Extensions/spaTeam/bitratetool/Makefile
+lib/python/Plugins/Extensions/spaTeam/Daemons/Makefile
+lib/python/Plugins/Extensions/spaTeam/icons/Makefile
+lib/python/Plugins/Extensions/spaTeam/locale/Makefile
+lib/python/Plugins/Extensions/spaTeam/locale/es/Makefile
+lib/python/Plugins/Extensions/spaTeam/locale/es/LC_MESSAGES/Makefile
+lib/python/Plugins/Extensions/spaTeam/meta/Makefile
 lib/python/Plugins/SystemPlugins/Makefile
 lib/python/Plugins/SystemPlugins/AnimationSetup/Makefile
 lib/python/Plugins/SystemPlugins/CableScan/Makefile
@@ -929,7 +970,6 @@ lib/python/Plugins/SystemPlugins/FSBLUpdater/Makefile
 lib/python/Plugins/SystemPlugins/HdmiCEC/Makefile
 lib/python/Plugins/SystemPlugins/Hotplug/Makefile
 lib/python/Plugins/SystemPlugins/Hotplug/meta/Makefile
-lib/python/Plugins/SystemPlugins/IceTV/Makefile
 lib/python/Plugins/SystemPlugins/LCNScanner/Makefile
 lib/python/Plugins/SystemPlugins/NetworkWizard/Makefile
 lib/python/Plugins/SystemPlugins/NetworkWizard/meta/Makefile
@@ -948,6 +988,7 @@ lib/python/Plugins/SystemPlugins/VideoEnhancement/Makefile
 lib/python/Plugins/SystemPlugins/VideoEnhancement/meta/Makefile
 lib/python/Plugins/SystemPlugins/VideoTune/Makefile
 lib/python/Plugins/SystemPlugins/VideoTune/meta/Makefile
+lib/python/Plugins/SystemPlugins/WetekFRQ/Makefile
 lib/python/Plugins/SystemPlugins/WirelessLan/Makefile
 lib/python/Plugins/SystemPlugins/WirelessLan/meta/Makefile
 lib/python/Plugins/SystemPlugins/SkinSelector/Makefile
