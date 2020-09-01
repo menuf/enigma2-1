@@ -44,7 +44,10 @@ class Screensaver(Screen):
 					self.hide()
 
 	def doMovePicture(self):
-		self.posx = random.randint(1,self.maxx)
-		self.posy = random.randint(1,self.maxy)
-		self["picture"].instance.move(ePoint(self.posx, self.posy))
-		self.moveLogoTimer.startLongTimer(9)
+		try:
+			self.posx = random.randint(1,self.maxx)
+			self.posy = random.randint(1,self.maxy)
+			self["picture"].instance.move(ePoint(self.posx, self.posy))
+			self.moveLogoTimer.startLongTimer(9)
+		except:
+			pass

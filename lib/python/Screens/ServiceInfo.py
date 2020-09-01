@@ -55,8 +55,8 @@ class ServiceInfoList(HTMLComponent, GUIComponent):
 		self.l = eListboxPythonMultiContent()
 		self.list = source
 		self.l.setList(self.list)
-		self.fontName, self.fontSize = skin.parameters.get("ServiceInfoFont", ('Regular', 23))
-		self.l.setFont(0, gFont(self.fontName, self.fontSize))
+                self.fontName, self.fontSize = skin.parameters.get("ServiceInfoFont", ('Regular', 23))
+                self.l.setFont(0, gFont(self.fontName, self.fontSize))
 		self.ItemHeight = 25
 
 	def applySkin(self, desktop, screen):
@@ -251,8 +251,8 @@ class ServiceInfo(Screen):
 						(_("Input Stream ID"), frontendData.get("is_id", 0), TYPE_VALUE_DEC),
 						(_("PLS Mode"), frontendData.get("pls_mode", None), TYPE_TEXT),
 						(_("PLS Code"), frontendData.get("pls_code", 0), TYPE_VALUE_DEC),
-					(_("T2MI PLP ID"), t2mi(frontendData.get("t2mi_plp_id", -1)), TYPE_TEXT),
-					(_("T2MI PID"), None if frontendData.get("t2mi_plp_id", -1) == -1 else str(frontendData.get("t2mi_pid", eDVBFrontendParametersSatellite.T2MI_Default_Pid)), TYPE_TEXT))
+						(_("T2MI PLP ID"), t2mi(frontendData.get("t2mi_plp_id", -1)), TYPE_TEXT),
+						(_("T2MI PID"), None if frontendData.get("t2mi_plp_id", -1) == -1 else str(frontendData.get("t2mi_pid", eDVBFrontendParametersSatellite.T2MI_Default_Pid)), TYPE_TEXT))
 			elif frontendDataOrg["tuner_type"] == "DVB-C":
 				return ((_("NIM"), chr(ord('A') + frontendData["tuner_number"]), TYPE_TEXT),
 						(_("Type"), frontendData["tuner_type"], TYPE_TEXT),

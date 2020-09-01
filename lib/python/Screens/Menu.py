@@ -10,13 +10,13 @@ from Components.SystemInfo import SystemInfo
 from Components.Label import Label
 from Tools.BoundFunction import boundFunction
 from Plugins.Plugin import PluginDescriptor
-from Tools.Directories import resolveFilename, SCOPE_SKIN, SCOPE_CURRENT_SKIN
+from Tools.Directories import resolveFilename, fileExists, SCOPE_SKIN, SCOPE_CURRENT_SKIN
 from enigma import eTimer
 from Components.Pixmap import Pixmap, MovingPixmap
 from Components.Button import Button
 from Tools.LoadPixmap import LoadPixmap
 import os
-from skin import findSkinScreen
+import skin
 
 import xml.etree.cElementTree
 
@@ -88,6 +88,7 @@ def MenuEntryName(name):
 
 # read the menu
 file = open(resolveFilename(SCOPE_SKIN, 'menu.xml'), 'r')
+
 mdom = xml.etree.cElementTree.parse(file)
 file.close()
 
@@ -296,9 +297,9 @@ class Menu(Screen, ProtectedScreen):
 		self.selected_entry = None
 		self.sub_menu_sort = None
 
-		self["green"] = Label()
-		self["yellow"] = Label()
-		self["blue"] = Label()
+		self["key_green"] = Label()
+		self["key_yellow"] = Label()
+		self["key_blue"] = Label()
 
 		m_list = []
 
@@ -354,9 +355,9 @@ class Menu(Screen, ProtectedScreen):
 		# for the skin: first try a menu_<menuID>, then Menu
 		self.skinName = [ ]
 		if menuID is not None:
-			if config.usage.menutype.value == 'horzanim' and findSkinScreen("Animmain"):
+			if config.usage.menutype.value == 'horzanim' and skin.dom_screens.has_key("Animmain"):
 				self.skinName.append('Animmain')
-			elif config.usage.menutype.value == 'horzicon' and findSkinScreen("Iconmain"):
+			elif config.usage.menutype.value == 'horzicon' and skin.dom_screens.has_key("Iconmain"):
 				self.skinName.append('Iconmain')
 			else:
 				self.skinName.append('menu_' + menuID)
@@ -392,7 +393,7 @@ class Menu(Screen, ProtectedScreen):
 			# Sort by Name
 			m_list.sort(key=self.sortByName)
 		elif config.usage.menu_sort_mode.value == "user":
-			self["blue"].setText(_("Edit mode on"))
+			self["key_blue"].setText(_("Edit mode on"))
 			self.hide_show_entries()
 			m_list = self.list
 		else:
@@ -472,14 +473,14 @@ class Menu(Screen, ProtectedScreen):
 		else:
 			t_history.thistory = t_history.thistory + str(a) + ' > '
 
-		if config.usage.menutype.value == 'horzanim' and findSkinScreen("Animmain"):
+		if config.usage.menutype.value == 'horzanim' and skin.dom_screens.has_key("Animmain"):
 			self['label1'] = StaticText()
 			self['label2'] = StaticText()
 			self['label3'] = StaticText()
 			self['label4'] = StaticText()
 			self['label5'] = StaticText()
 			self.onShown.append(self.openTestA)
-		elif config.usage.menutype.value == 'horzicon' and findSkinScreen("Iconmain"):
+		elif config.usage.menutype.value == 'horzicon' and skin.dom_screens.has_key("Iconmain"):
 			self['label1'] = StaticText()
 			self['label2'] = StaticText()
 			self['label3'] = StaticText()
@@ -611,10 +612,10 @@ class Menu(Screen, ProtectedScreen):
 			elif  self.selected_entry != m_entry[2]:
 				select = True
 			if not select:
-				self["green"].setText(_("Move mode on"))
+				self["key_green"].setText(_("Move mode on"))
 				self.selected_entry = None
 			else:
-				self["green"].setText(_("Move mode off"))
+				self["key_green"].setText(_("Move mode off"))
 			idx = 0
 			for x in self.list:
 				if m_entry[2] == x[2] and select == True:
@@ -645,10 +646,10 @@ class Menu(Screen, ProtectedScreen):
 			hidden = self.sub_menu_sort.getConfigValue(m_entry, "hidden") or 0
 			if hidden:
 				self.sub_menu_sort.removeConfigValue(m_entry, "hidden")
-				self["yellow"].setText(_("hide"))
+				self["key_yellow"].setText(_("Hide"))
 			else:
 				self.sub_menu_sort.changeConfigValue(m_entry, "hidden", 1)
-				self["yellow"].setText(_("show"))
+				self["key_yellow"].setText(_("Show"))
 
 	def keyGreen(self):
 		if self.sort_mode:
@@ -667,9 +668,9 @@ class Menu(Screen, ProtectedScreen):
 
 	def toggleSortMode(self):
 		if self.sort_mode:
-			self["green"].setText("")
-			self["yellow"].setText("")
-			self["blue"].setText(_("Edit mode on"))
+			self["key_green"].setText("")
+			self["key_yellow"].setText("")
+			self["key_blue"].setText(_("Edit mode on"))
 			self.sort_mode = False
 			i = 10
 			idx = 0
@@ -692,8 +693,8 @@ class Menu(Screen, ProtectedScreen):
 			self.hide_show_entries()
 			self["menu"].setList(self.list)
 		else:
-			self["green"].setText(_("Move mode on"))
-			self["blue"].setText(_("Edit mode off"))
+			self["key_green"].setText(_("Move mode on"))
+			self["key_blue"].setText(_("Edit mode off"))
 			self.sort_mode = True
 			self.hide_show_entries()
 			self["menu"].updateList(self.list)
@@ -718,14 +719,13 @@ class Menu(Screen, ProtectedScreen):
 		if self.sort_mode:
 			selection = self["menu"].getCurrent()[2]
 			if self.sub_menu_sort.getConfigValue(selection, "hidden"):
-				self["yellow"].setText(_("show"))
+				self["key_yellow"].setText(_("Show"))
 			else:
-				self["yellow"].setText(_("hide"))
+				self["key_yellow"].setText(_("Hide"))
 		else:
-			self["yellow"].setText("")
+			self["key_yellow"].setText("")
 
 class AnimMain(Screen):
-
 	def __init__(self, session, tlist, menuTitle):
 		Screen.__init__(self, session)
 		self.skinName = 'Animmain'
@@ -864,8 +864,8 @@ class AnimMain(Screen):
 		if selection is not None:
 			selection[1]()
 
-class IconMain(Screen):
 
+class IconMain(Screen):
 	def __init__(self, session, tlist, menuTitle):
 		Screen.__init__(self, session)
 		self.skinName = 'Iconmain'
